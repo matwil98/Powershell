@@ -119,3 +119,42 @@ function Get-IISUniqueLogUri {
     }
 }
 
+function Get-FormattedLog {
+    if(-not (Test-Path $logFormattedDir)){
+        New-Item -Path $logFormattedDir -ItemType Directory | Out-Null
+        Write-Host "Created directory: $logFormattedDir" -ForegroundColor Green
+    } else {
+        Write-Host "Directory already exists: $logFormattedDir" -ForegroundColor Yellow 
+    }
+
+    try{
+        $parsedLogFile = Get-ParsedLogFileName
+        if($parsedLogFile.Length -gt 0){
+            $reader = [System.IO.StreamReader]::new($parsedLogFile)
+            $writer = [System.IO.StreamWriter]::new("$logFormattedDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_formatted.log")
+            try{
+                while(-not $reader.EndOfStream){
+                    $line = $reader.ReadLine()
+                    $parts = $line.Split(" ")
+                    if($parts.Length -ge 8){
+                        $dateTime = "$($parts[0])T$($parts[1])Z"
+                        $clientIp = $parts[2]
+                        $requestMethod = $parts[3]
+                        $statusCode = $parts[4]
+                        $requestUri = $parts[5]
+                        $uriQuery = $parts[6]
+                        $referer = $parts[7]
+                        $f = "{0, -20} {1, -15} {2, -10} {3, -10} {4, -30} {5, -30} {6, -50}" -f $dateTime, $clientIp, $requestMethod, $statusCode, $requestUri, $uriQuery, $referer
+                        $writer.WriteLine("$f")
+                    }
+                }
+            }
+            finally {
+                $reader.Close()
+                $writer.Close()
+            }
+        }
+    } catch {
+        Write-Error "No file selected for processing."
+    }
+}

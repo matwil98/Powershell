@@ -40,6 +40,9 @@ function Get-IISLogFileData{
         $headers = Get-IISLogFileDataHeaders -logFilePath $logFilePath
         if($headers.Count -gt 0){
             $reader = [System.IO.StreamReader]::new($logFilePath)
+            $stoper = New-Object System.Diagnostics.Stopwatch
+            $stoper.Start()
+            Write-Host "Processing log file: $logFilePath" -ForegroundColor Blue
             try {
                 $writer = [System.IO.StreamWriter]::new("$logParsedDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_parsed.log")
                 while(-not $reader.EndOfStream){
@@ -56,6 +59,8 @@ function Get-IISLogFileData{
                         $writer.WriteLine("$date $time $clientIp $requestMethod $statusCode $requestUri $uriQuery $referer")
                     }
                 }
+                $stoper.Stop()
+                Write-Host "Finished processing log file. Time taken: $($stoper.Elapsed.TotalSeconds) seconds" -ForegroundColor Green
             }
             finally {
                 $reader.Close()
@@ -98,7 +103,11 @@ function Get-IISUniqueLogUri {
         if($parsedLogFile.Length -gt 0){
             $reader = [System.IO.StreamReader]::new($parsedLogFile)
             $writer = [System.IO.StreamWriter]::new("$logUniqueDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_unique_uri.log")
+            
             try{
+                $stoper = New-Object System.Diagnostics.Stopwatch
+                $stoper.Start()
+                Write-Host "Processing parsed log file for unique URIs: $parsedLogFile" -ForegroundColor Blue
                 $hashSet = New-Object System.Collections.Generic.HashSet[string]
                 while(-not $reader.EndOfStream){
                     $line = $reader.ReadLine()
@@ -108,6 +117,8 @@ function Get-IISUniqueLogUri {
                         $writer.WriteLine($requestUri)
                     }
                 }
+                $stoper.Stop()
+                Write-Host "Finished processing unique URIs. Time taken: $($stoper.Elapsed.TotalSeconds) seconds" -ForegroundColor Green
             }
             finally {
                 $reader.Close()
@@ -132,6 +143,9 @@ function Get-FormattedLog {
         if($parsedLogFile.Length -gt 0){
             $reader = [System.IO.StreamReader]::new($parsedLogFile)
             $writer = [System.IO.StreamWriter]::new("$logFormattedDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_formatted.log")
+            $stoper = New-Object System.Diagnostics.Stopwatch
+            $stoper.Start()
+            Write-Host "Processing parsed log file for formatted output: $parsedLogFile" -ForegroundColor Blue
             try{
                 while(-not $reader.EndOfStream){
                     $line = $reader.ReadLine()
@@ -148,6 +162,8 @@ function Get-FormattedLog {
                         $writer.WriteLine("$f")
                     }
                 }
+                $stoper.Stop()
+                Write-Host "Finished processing formatted log. Time taken: $($stoper.Elapsed.TotalSeconds) seconds" -ForegroundColor Green
             }
             finally {
                 $reader.Close()

@@ -64,3 +64,23 @@ function Get-IISLogFileData{
         }
     }
 }
+
+function Get-ParsedLogFileName {
+    $parsedFiles = Get-ChildItem -Path $logParsedDir -Filter "*_parsed.log" | Sort-Object LastWriteTime -Descending
+    if($parsedFiles.Count -gt 0){
+        Write-Host "Parsed log files are below:" -ForegroundColor Yellow
+        $parsedFiles | ForEach-Object {
+            Write-Host $_.Name -ForegroundColor Cyan
+        }
+        $choice = Read-Host "Enter the number corresponding to the parsed log file you want to use (1-$($parsedFiles.Count))"
+        if($choice -match "^[1-9]\d*$" -and $choice -gt 0 -and $choice -le $parsedFiles.Count){
+            return $parsedFiles[$choice - 1].FullName
+        } else {
+            Write-Error "Invalid choice. Please enter a number between 1 and $($parsedFiles.Count)"
+            return
+        }
+    } else {
+        Write-Error "No parsed log files found in directory: $logParsedDir"
+        return
+    }
+}

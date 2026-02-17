@@ -84,3 +84,38 @@ function Get-ParsedLogFileName {
         return
     }
 }
+
+function Get-IISUniqueLogUri {
+    if(-not (Test-Path $logUniqueDir)){
+        New-Item -Path $logUniqueDir -ItemType Directory | Out-Null
+        Write-Host "Created directory: $logUniqueDir" -ForegroundColor Green
+    } else {
+        Write-Host "Directory already exists: $logUniqueDir" -ForegroundColor Yellow 
+    }
+
+    try{
+        $parsedLogFile = Get-ParsedLogFileName
+        if($parsedLogFile.Length -gt 0){
+            $reader = [System.IO.StreamReader]::new($parsedLogFile)
+            $writer = [System.IO.StreamWriter]::new("$logUniqueDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_unique_uri.log")
+            try{
+                $hashSet = New-Object System.Collections.Generic.HashSet[string]
+                while(-not $reader.EndOfStream){
+                    $line = $reader.ReadLine()
+                    $requestUri = $line.Split(" ")[5]
+                    if(-not $hashSet.Contains($requestUri)){
+                        $hashSet.Add($requestUri) | Out-Null
+                        $writer.WriteLine($requestUri)
+                    }
+                }
+            }
+            finally {
+                $reader.Close()
+                $writer.Close()
+            }
+        }
+    } catch {
+        Write-Error "No file selected for processing."
+    }
+}
+

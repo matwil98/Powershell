@@ -37,7 +37,7 @@ function Get-IISLogFileData{
             Write-Host "Directory already exists: $logParsedDir" -ForegroundColor Yellow
         }
 
-        $headers = Get-IISLogFileDataHeaders -logFilePath $logFilePath
+        $headers = Get-IISLogFileHeaders -logFilePath $logFilePath
         if($headers.Count -gt 0){
             $reader = [System.IO.StreamReader]::new($logFilePath)
             $stoper = New-Object System.Diagnostics.Stopwatch

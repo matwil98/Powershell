@@ -189,6 +189,7 @@ function Get-IISRandomLog{
     $cIp = @("192.168.1.101", "192.168.1.102", "192.168.1.103")
     $uriQuery = @("id=123", "user=admin", "page=1", "search=term", "sort=asc")
     $userAgents = @("Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)", "Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10_15_7)", "Mozilla/5.0+(Linux;+Android+10;+SM-G973F)", "Mozilla/5.0+(iPhone;+CPU+iPhone+OS+14_0+like+Mac+OS+X)", "Mozilla/5.0+(iPad;+CPU+iPad+OS+14_0+like+Mac+OS+X)")
+    $usernames = @("LAB\admin", "LAB\developer", "LAB\dbadmin", "LAB\hr", "LAB\guest")
     $scSubstatus = @(0, 1, 2, 3, 4, 5)
     $scWin32Status = @(0, 1, 2, 3, 4, 5)
     $timeTaken = @(10, 20, 30, 40, 50, 60)
@@ -201,13 +202,14 @@ function Get-IISRandomLog{
     try {
         Write-Host "Generating random log entries..." -ForegroundColor Green
         $writer = [System.IO.StreamWriter]::new("$logTmpDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_random.log")
-        $writer.WriteLine("#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port c-ip cs(User-Agent) sc-status sc-substatus sc-win32-status time-taken")
+        $writer.WriteLine("#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-username c-ip cs(User-Agent) sc-status sc-substatus sc-win32-status time-taken")
     
         while ($i -lt $numEntries) {
             $date = (Get-Date).ToString("yyyy-MM-dd")
             $time = (Get-Date).ToString("HH:mm:ss.fff")
             $sIpRandom = $sIp | Get-Random
             $cIpRandom = $cIp | Get-Random
+            $user = $usernames | Get-Random
             $requestMethodRandom = $methods | Get-Random
             $statusCodeRandom = $responseCodes | Get-Random
             $requestUriRandom = $uris | Get-Random
@@ -217,7 +219,7 @@ function Get-IISRandomLog{
             $scWin32StatusRandom = $scWin32Status | Get-Random
             $timeTakenRandom = $timeTaken | Get-Random
 
-            $logEntry = "$date $time $sIpRandom $requestMethodRandom $requestUriRandom $uriQueryRandom 443 - $cIpRandom $userAgentRandom $statusCodeRandom $scSubstatusRandom $scWin32StatusRandom $timeTakenRandom"
+            $logEntry = "$date $time $sIpRandom $requestMethodRandom $requestUriRandom $uriQueryRandom 443 $user $cIpRandom $userAgentRandom $statusCodeRandom $scSubstatusRandom $scWin32StatusRandom $timeTakenRandom"
            
             $writer.WriteLine($logEntry)
             $i++

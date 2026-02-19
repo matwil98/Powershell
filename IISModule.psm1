@@ -174,3 +174,48 @@ function Get-FormattedLog {
         Write-Error "No file selected for processing."
     }
 }
+
+function Get-IISRandomLog{
+    $responseCodes = @(200, 301, 400, 401, 403, 404, 500)
+    $methods = @("GET", "POST", "PUT", "DELETE", "PATCH")
+    $uris = @("/index.php", "/webpage/login.php", "/webpage/dashobard.php", "/api/data", "/api/update", "/contact.html")
+    $sIp = @("192.168.1.10", "192.168.1.11", "192.168.1.12")
+    $cIp = @("192.168.1.101", "192.168.1.102", "192.168.1.103")
+    $uriQuery = @("id=123", "user=admin", "page=1", "search=term", "sort=asc")
+    $userAgents = @("Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)", "Mozilla/5.0+(Macintosh;+Intel+Mac+OS+X+10_15_7)", "Mozilla/5.0+(Linux;+Android+10;+SM-G973F)", "Mozilla/5.0+(iPhone;+CPU+iPhone+OS+14_0+like+Mac+OS+X)", "Mozilla/5.0+(iPad;+CPU+iPad+OS+14_0+like+Mac+OS+X)")
+    $scSubstatus = @(0, 1, 2, 3, 4, 5)
+    $scWin32Status = @(0, 1, 2, 3, 4, 5)
+    $timeTaken = @(10, 20, 30, 40, 50, 60)
+    $numEntries = Read-Host "Enter the number of random log entries to generate"
+    $i = 0
+    try {
+        Write-Host "Generating random log entries..." -ForegroundColor Green
+        $writer = [System.IO.StreamWriter]::new("$logTmpDir\$((Get-Date).ToString("yyyy-MM-dd_HHmmss"))" + "_random.log")
+        $writer.WriteLine("#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port c-ip cs(User-Agent) sc-status sc-substatus sc-win32-status time-taken")
+    
+        while ($i -lt $numEntries) {
+            $date = (Get-Date).ToString("yyyy-MM-dd")
+            $time = (Get-Date).ToString("HH:mm:ss.fff")
+            $sIpRandom = $sIp | Get-Random
+            $cIpRandom = $cIp | Get-Random
+            $requestMethodRandom = $methods | Get-Random
+            $statusCodeRandom = $responseCodes | Get-Random
+            $requestUriRandom = $uris | Get-Random
+            $uriQueryRandom = $uriQuery | Get-Random
+            $userAgentRandom = $userAgents | Get-Random
+            $scSubstatusRandom = $scSubstatus | Get-Random
+            $scWin32StatusRandom = $scWin32Status | Get-Random
+            $timeTakenRandom = $timeTaken | Get-Random
+
+            $logEntry = "$date $time $sIpRandom $requestMethodRandom $requestUriRandom $uriQueryRandom 443 - $cIpRandom $userAgentRandom $statusCodeRandom $scSubstatusRandom $scWin32StatusRandom $timeTakenRandom"
+           
+            $writer.WriteLine($logEntry)
+            Start-Sleep -Milliseconds 10
+            $i++
+        }
+    }
+    finally {
+        $writer.Close()
+        Write-Host "Finished generating random log entries." -ForegroundColor Green
+    }
+}

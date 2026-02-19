@@ -220,7 +220,6 @@ function Get-IISRandomLog{
             $logEntry = "$date $time $sIpRandom $requestMethodRandom $requestUriRandom $uriQueryRandom 443 - $cIpRandom $userAgentRandom $statusCodeRandom $scSubstatusRandom $scWin32StatusRandom $timeTakenRandom"
            
             $writer.WriteLine($logEntry)
-            Start-Sleep -Milliseconds 10
             $i++
         }
     }

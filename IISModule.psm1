@@ -187,6 +187,10 @@ function Get-IISRandomLog{
     $scWin32Status = @(0, 1, 2, 3, 4, 5)
     $timeTaken = @(10, 20, 30, 40, 50, 60)
     $numEntries = Read-Host "Enter the number of random log entries to generate"
+    if(-not ($numEntries -match "^\d+$") -or $numEntries -le 0){
+        Write-Error "Invalid input. Please enter a positive integer for the number of log entries."
+        return
+    }
     $i = 0
     try {
         Write-Host "Generating random log entries..." -ForegroundColor Green

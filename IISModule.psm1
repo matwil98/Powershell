@@ -176,6 +176,12 @@ function Get-FormattedLog {
 }
 
 function Get-IISRandomLog{
+    if(-not (Test-Path $logTmpDir)){
+        New-Item -Path $logTmpDir -ItemType Directory | Out-Null
+        Write-Host "Created directory: $logTmpDir" -ForegroundColor Green
+    } else {
+        Write-Host "Directory already exists: $logTmpDir" -ForegroundColor Yellow 
+    }
     $responseCodes = @(200, 301, 400, 401, 403, 404, 500)
     $methods = @("GET", "POST", "PUT", "DELETE", "PATCH")
     $uris = @("/index.php", "/webpage/login.php", "/webpage/dashobard.php", "/api/data", "/api/update", "/contact.html")

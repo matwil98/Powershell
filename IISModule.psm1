@@ -72,10 +72,12 @@ function Get-IISLogFileData{
 
 function Get-ParsedLogFileName {
     $parsedFiles = Get-ChildItem -Path $logParsedDir -Filter "*_parsed.log" | Sort-Object LastWriteTime -Descending
+    $i = 1
     if($parsedFiles.Count -gt 0){
         Write-Host "Parsed log files are below:" -ForegroundColor Yellow
         $parsedFiles | ForEach-Object {
-            Write-Host $_.Name -ForegroundColor Cyan
+            Write-Host "$i) $($_.Name) " -ForegroundColor Cyan
+            $i++
         }
         $choice = Read-Host "Enter the number corresponding to the parsed log file you want to use (1-$($parsedFiles.Count))"
         if($choice -match "^[1-9]\d*$" -and $choice -gt 0 -and $choice -le $parsedFiles.Count){

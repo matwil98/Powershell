@@ -2,6 +2,8 @@ $logTmpDir = "$env:USERPROFILE\IISLogs"
 $logParsedDir = "$logTmpDir\Parsed"
 $logFormattedDir = "$logTmpDir\Formatted"
 $logUniqueDir = "$logTmpDir\Unique"
+$script:rocket = [char]::ConvertFromUtf32(0x1F680)
+$script:bye =[char]::ConvertFromUtf32(0x1F44B)
 
 function Get-IISLogFileHeaders{
     param(
@@ -231,4 +233,43 @@ function Get-IISRandomLog{
         $writer.Close()
         Write-Host "Finished generating random log entries." -ForegroundColor Green
     }
+}
+
+function Get-IISLogMenu {
+    do {
+        Write-Host "$script:rocket  Welcome to the IIS Log Parser and Analyzer! $script:rocket" -ForegroundColor DarkBlue
+        Write-Host "Please select an option from the menu below:" -ForegroundColor DarkBlue
+        Write-Host " 1) Parse IIS Log File`n 2) Get Unique URIs from Parsed Log`n 3) Get Formatted Log Output`n 4) Generate Random IIS Log File`n 5) Exit" -ForegroundColor Cyan
+        $choice = Read-Host "Enter your choice (1-5)"
+        while(-not ($choice -match "^[1-5]$")){
+            Write-Host "Invalid choice. Please select a valid option (1-5)." -ForegroundColor Red
+            $choice = Read-Host "Enter your choice (1-5)"
+        }
+        switch($choice){
+            "1" {
+                $logFIlePath = Read-Host "Enter the full path to the IIS log file you want to parse"  
+                Get-IISLogFileData -logFilePath $logFIlePath
+            }
+            "2"{
+                Get-IISUniqueLogUri
+            }
+            "3"{
+                Get-FormattedLog
+            }
+            "4"{
+                Get-IISRandomLog
+            }
+            "5"{
+                Write-Host "Exiting... $script:bye" -ForegroundColor Green
+                break
+            }
+            default {
+                Write-Host "Invalid choice. Please select a valid option (1-5)...." -ForegroundColor Red
+            }
+        }
+        if($choice -eq "5"){
+            break
+        }
+        Read-Host "Press Enter to return to the menu"
+    } while($true)
 }

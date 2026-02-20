@@ -89,21 +89,51 @@ Get-FormattedLog
 ---
 
 ### 6. `Get-IISRandomLog`
-**Description:** Selects a random sample of entries from a parsed IIS log file. Useful for quick spot-checks or sampling large logs.
+**Description:** Generates random IIS log entries for testing purposes. Creates a sample log file with randomly generated entries containing various HTTP methods, status codes, URIs, and client IPs.
 
 **Parameters:**
-- `$Count` (int) - Number of random entries to return. Default: 10
-- `$ParsedLogPath` (string) - Optional path to a specific parsed log file. If omitted, the function will prompt for a file using `Get-ParsedLogFileName`.
+- None (prompts user for input)
 
 **Behavior:**
-- Prompts user to select a parsed log file when `$ParsedLogPath` is not provided
-- Reads the parsed log file and returns `$Count` random lines (or fewer if file is smaller)
-- Optionally writes the sample to `$env:USERPROFILE\IISLogs\Samples` with a timestamped filename
+- Prompts user to enter the number of random log entries to generate
+- Creates `$env:USERPROFILE\IISLogs` directory if needed
+- Generates entries with random values from predefined lists (methods, status codes, URIs, IPs, etc.)
+- Writes output to a timestamped `_random.log` file
+- Displays completion message
 
 **Usage Example:**
 ```powershell
-Get-IISRandomLog -Count 20
+Get-IISRandomLog
 ```
+
+---
+
+### 7. `Get-IISLogMenu`
+**Description:** Interactive menu-driven interface for accessing all IIS log parsing functions. Provides a persistent menu that allows users to perform multiple operations without re-launching the function.
+
+**Behavior:**
+- Displays an interactive menu with 5 options:
+  1. Parse IIS Log File - Calls `Get-IISLogFileData`
+  2. Get Unique URIs from Parsed Log - Calls `Get-IISUniqueLogUri`
+  3. Get Formatted Log Output - Calls `Get-FormattedLog`
+  4. Generate Random IIS Log File - Calls `Get-IISRandomLog`
+  5. Exit - Closes the menu
+- After completing an operation (options 1-4), the menu returns and prompts the user to press Enter
+- The menu loops continuously until the user selects option 5
+- Validates user input and displays error messages for invalid choices
+
+**Usage Example:**
+```powershell
+Get-IISLogMenu
+```
+
+**Example Workflow:**
+1. Run `Get-IISLogMenu`
+2. Enter `1` to parse an IIS log file
+3. Press Enter to return to the menu
+4. Enter `2` to extract unique URIs from the parsed log
+5. Press Enter to return to the menu
+6. Enter `5` to exit
 
 ---
 
